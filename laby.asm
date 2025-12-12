@@ -20,15 +20,14 @@ donnees segment public
 ;----------------------------------
 MAZE_W   EQU 19      ; largeur en cases
 MAZE_H   EQU 16      ; hauteur en cases
-TILE_W   EQU 8       ; taille d'une case en pixels (largeur)
-TILE_H   EQU 8       ; taille d'une case en pixels (hauteur)
+TILE_W   EQU 15      ; taille d'une case en pixels (largeur)
+TILE_H   EQU 15      ; taille d'une case en pixels (hauteur)
 MAZE_X0  EQU 40      ; décalage X du labyrinthe à l'écran
 MAZE_Y0  EQU 20      ; décalage Y du labyrinthe à l'écran
 
 ;----------------------------------
 ; Labyrinthe : 16 lignes de 19 caractères
 ; X = mur, . = vide (pour plus tard : pastille), autres = vide
-; IMPORTANT : une ligne DB par ligne, pas de "\" ni de ", \"
 ;----------------------------------
 maze    DB 'XXXXXXXXXXXXXXXXXXX'
         DB 'X.................X'
@@ -60,7 +59,7 @@ prog:
     mov ds, ax
 
     ; mode vidéo 320x200 256 couleurs
-    call Video13h
+    call VideoVGA
     call ClearScreen
 
     ; dessin du labyrinthe
@@ -92,24 +91,22 @@ col_loop:
     cmp al, 'X'
     jne not_wall          ; on ne dessine que les murs
 
-    ; ---- calcul X pixel : AX = bx * 8 + MAZE_X0 ----
+    ; ---- calcul X pixel : AX = bx * TILE_W + MAZE_X0 ----
     mov ax, bx
-    shl ax, 1             ; *2
-    shl ax, 1             ; *4
-    shl ax, 1             ; *8
+    mov cx, TILE_W        ; TILE_W = 15
+    mul cx                ; DX:AX = AX * CX  (bx < 19 donc DX restera 0)
     add ax, MAZE_X0
     mov Rx, ax
 
-    ; ---- calcul Y pixel : AX = di * 8 + MAZE_Y0 ----
+    ; ---- calcul Y pixel : AX = di * TILE_H + MAZE_Y0 ----
     mov ax, di
-    shl ax, 1             ; *2
-    shl ax, 1             ; *4
-    shl ax, 1             ; *8
+    mov cx, TILE_H        ; TILE_H = 15
+    mul cx                ; DX:AX = AX * CX
     add ax, MAZE_Y0
     mov Ry, ax
 
-    mov Rw, TILE_W        ; largeur du mur
-    mov Rh, TILE_H        ; hauteur du mur
+    mov Rw, TILE_W        ; largeur du mur (15)
+    mov Rh, TILE_H        ; hauteur du mur (15)
     mov col, 1            ; couleur (bleu)
     call fillRect
 
