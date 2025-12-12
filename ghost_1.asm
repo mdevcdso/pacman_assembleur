@@ -1,6 +1,6 @@
-EasyBMP Warning: file C:/_Athierry/_Soft-Ecoles/ESGI/2025_ASM/ghost_1.bmp has an underspecified
-                 color table. The table will be padded with extra
-                 white (255,255,255,0) entries.
+; EasyBMP Warning: file C:/_Athierry/_Soft-Ecoles/ESGI/2025_ASM/ghost_1.bmp has an underspecified
+;                 color table. The table will be padded with extra
+;                 white (255,255,255,0) entries.
 
 public image
 
@@ -13,4 +13,4 @@ ima0001 DB 30,33,33,40,40,30,30,33,33,16,16,40,40,40,30,30,33,33,40,40,30,30,33,
 ima0002 DB 40,40,40,40,40,40,16,40,40,40,40,40,40,40,40,40,40,40,40,40,40,16,40,40,16,40,40,40,16,16,40,40,40,16,40,40,16,40,16,16,16,40,40,16,16,40,40,16,16,16,40,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16
 
 donnees ends   ; ---- Segment de donnees-----
-end   ; Fin du programme
+end
