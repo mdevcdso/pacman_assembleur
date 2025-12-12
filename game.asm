@@ -4,23 +4,27 @@
 ;****************************************
 include LIBGFX.INC
 
-pile    segment stack     ; Segment de pile
+EXTRN  image:WORD        ; sprite du fantome (défini dans ghost.asm)
+
+pile    segment stack
+    dw 128 dup(?)
 pile    ends
 
-donnees segment public    ; Segment de donnees 
+donnees segment public
 
-; +++++++++++++++++++++++++++++++++++++++++++++
-;               CONSTANTES
-; +++++++++++++++++++++++++++++++++++++++++++++
-; ============- PAC MAN ICONS =====================
+; =================================================
+;             SPRITES PACMAN 15x15
+; =================================================
 pacr  DW   15, 225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,44,0,0,0,0,0,0,0,0,44
     DB 44,44,44,44,44,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44,0,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44
     DB 44,44,0,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
 man  DW   15, 225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,44,44,0,0,0,0,0,44,44,44,44,44,44,44,44,44,44,44,0,0,0,0,44,44,44,44,44,44,44,44,44,44,44,0,0,0,44,44,44
     DB 44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,0,44,44,44,44,44,44
     DB 44,44,44,44,44,0,0,0,0,44,44,44,44,44,44,44,44,44,44,44,0,0,0,0,0,44,44,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
 pacl DW 15,225
     DB  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB  0,0,0,44,44,44,44,44,0,0,0,0,0,0,0
@@ -37,6 +41,7 @@ pacl DW 15,225
     DB  0,0,0,44,44,44,44,44,44,44,0,0,0,0,0
     DB  0,0,0,44,44,44,44,44,0,0,0,0,0,0,0
     DB  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
 pact DW 15,225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -53,6 +58,7 @@ pact DW 15,225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
 pacb DW 15,225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -70,98 +76,125 @@ pacb DW 15,225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-    
 
+; =================================================
+;             LABYRINTHE 19 x 16 cases
+; =================================================
+MAZE_W   EQU 19
+MAZE_H   EQU 16
+TILE_W   EQU 15
+TILE_H   EQU 15
+MAZE_X0  EQU 40
+MAZE_Y0  EQU 20
 
+WALL_MARG EQU 2                         ; marge vide autour du mur dans la case
+WALL_W    EQU TILE_W-2*WALL_MARG        ; 11
+WALL_H    EQU TILE_H-2*WALL_MARG        ; 11
 
+; pastilles (petits carrés 3x3 au centre des cases '.')
+PELLET_W   EQU 3
+PELLET_H   EQU 3
+PELLET_COL EQU 44
+PELLET_OFFX EQU (TILE_W-PELLET_W)/2     ; 6
+PELLET_OFFY EQU (TILE_H-PELLET_H)/2     ; 6
 
-nfo1   DB "LONEVADER:$"
-nfo2   DB "=============$"
-nfo3   DB "   fleches  -> change la direction du robot$"
+; X = mur, . = passage avec pastille
+maze    DB 'XXXXXXXXXXXXXXXXXXX'
+        DB 'X.................X'
+        DB 'X.XXX.XXX.X.XXX.X.X'
+        DB 'X.X.......X.....X.X'
+        DB 'X.X.XXX.X.X.XXX.X.X'
+        DB 'X.....X...X.X.....X'
+        DB 'XXX.X.XXXXX.X.XXX.X'
+        DB 'X.................X'
+        DB 'X.XXX.X.X.X.X.XXX.X'
+        DB 'X.X...X...X...X.X.X'
+        DB 'X.X.XXXXX.XXXXX.X.X'
+        DB 'X.X.............X.X'
+        DB 'X.XXX.XXX.XXX.XXX.X'
+        DB 'X.................X'
+        DB 'X.................X'
+        DB 'XXXXXXXXXXXXXXXXXXX'
+
+; =================================================
+;                 TEXTES
+; =================================================
+nfo1   DB "PACMAN:$"
+nfo2   DB "=========$"
+nfo3   DB "   fleches  -> deplacer Pacman$"
 nfo4   DB "   touche * -> quitte le jeu$"
-nfo5   DB "   !! eviter le mur rouge !!$"
+nfo5   DB "   !! eviter les murs bleus !!$"
 nfo6   DB "... press any Key to start$"
 
-; +++++++++++++++++++++++++++++++++++++++++++++
-;               VARIABLES
-; +++++++++++++++++++++++++++++++++++++++++++++
-cycle DB  0
-direction DB 0
-posX  DW  5
-posY  DW  10
+; =================================================
+;                 VARIABLES
+; =================================================
+cycle      DB  0         ; 0 ou 1 pour la bouche
+direction  DB  0         ; 0=droite,1=gauche,2=haut,3=bas
 
-donnees ends    ; ********** FIN Segment de donnees ************
+; position initiale de Pacman dans un couloir
+posX  DW  55             ; 40 + 1*15
+posY  DW  215            ; 20 + 13*15
 
-; +++++++++++++++++++++++++++++++++++++++++++++
-;               PROGRAMME
-; +++++++++++++++++++++++++++++++++++++++++++++
-code    segment public        ; Segment de code
-assume  cs:code,ds:donnees,es:code,ss:pile
+; fantome (une seule instance pour l'instant)
+ghostX DW  175           ; 40 + 9*15
+ghostY DW  125           ; 20 + 7*15
+ghostDir DB 0            ; 0= droite,1=gauche,2=haut,3=bas
 
+donnees ends
+
+
+code segment public
+assume cs:code, ds:donnees, ss:pile
+
+; =================================================
+;             PROGRAMME PRINCIPAL
+; =================================================
 prog:
-; ================== Gestion des arguments =========
-    mov BX, 80h             ; offset in PSP for argument length
-    mov CH, byte ptr[BX]    ; CH = argument length 
-    
-; ================== Gestion des donnees =========
-    mov AX, donnees         ; set DS on program data segment
-    mov DS, AX
-    
-; =================== Programme ===================
-    call Help               ; Instructions
-    
-    mov Rx, 0               ; screen limits
+    mov ax, donnees
+    mov ds, ax
+
+    ; écran d'aide
+    call Help
+
+    ; mode 640x480
+    call VideoVGA
+    mov Rx, 0
     mov Ry, 0
-    cmp CH, 0               ; test number of arguments
-    jz no_args              
-    CALL VideoVGA           ; args --> 640x480
     mov Rh, 479
     mov Rw, 639
-    mov col, 44             ; Yellow border
-    call Rectangle
-    jmp debut  
- no_args:
-    CALL Video13h           ; no args --> 320x200
-    mov Rh, 199
-    mov Rw, 319
-    mov col, 36             ; Magenta border
-    call Rectangle
-    
- debut:
-    mov col, 0
-    mov pX, 0
-    mov pY, 1
-    
-; ========== game initialisation ================    
-    mov tempo, 20
-    
-    mov Rx, 50
-    mov Ry, 20
-    mov Rh, 50
-    mov Rw, 10
-    mov col, 1
-    call fillRect
-    mov Rx, 100            
-    mov Ry, 10
-    mov Rh, 50
-    mov Rw, 10
-    mov col, 9
+    mov col, 44           ; bord jaune
     call Rectangle
 
-; ========== GAME LOOP ===============
-gameloop:  
+    call ClearScreen      ; fond noir
+
+    mov tempo, 20
+
+    ; dessiner le labyrinthe et les pastilles une seule fois
+    call DrawMaze
+    call DrawPellets
+
+game_loop:
+    ; logiques de mouvement
+    call docycle          ; déplacer Pacman
+    call MoveGhost        ; déplacer le fantome
+    call EatPellet        ; manger une éventuelle pastille
+    call isdead           ; collision avec mur
+    call GhostHit         ; collision avec fantome ?
+
+    ; dessin des sprites (labyrinthe/pastilles déjà dessinés)
+    call DrawGhost
     call dessine
-    call docycle
+
     call sleep
     call interact
-    call isdead
-    jmp gameloop
-; ====================================
-   
-; =============================
-;      ROUTINES
-; =============================
-;------------Sub Help    -----------
+    jmp game_loop
+
+
+; =================================================
+;                     ROUTINES
+; =================================================
+
 Help:
     call ClearScreen
     mov DX, offset nfo1
@@ -178,24 +211,23 @@ Help:
     call CharLine
     call WaitKey
     ret
-    
-;--------- dessine ------------ 
-; cycle <<  
+
+;---------- dessine Pacman -------------
 dessine:
     mov AX, posX
     mov iX, AX
     mov AX, posY
     mov iY, AX
 
-    cmp direction, 0        ; droite
+    cmp direction, 0
     je  d_right
-    cmp direction, 1        ; gauche
+    cmp direction, 1
     je  d_left
-    cmp direction, 2        ; up
-    je  d_top
-    cmp direction, 3        ; down
-    je  d_bot
-    jmp d_right             ; sécurité
+    cmp direction, 2
+    je  d_up
+    cmp direction, 3
+    je  d_down
+    jmp d_right          ; par défaut
 
 d_right:
     cmp cycle, 0
@@ -215,146 +247,447 @@ dl1:
     mov BX, offset pacl
     jmp d_draw
 
-d_top:
+d_up:
     cmp cycle, 0
-    jne dt1
+    jne du1
     mov BX, offset man
     jmp d_draw
-dt1:
+du1:
     mov BX, offset pact
     jmp d_draw
 
-d_bot:
+d_down:
     cmp cycle, 0
-    jne db1
+    jne dd1
     mov BX, offset man
     jmp d_draw
-db1:
+dd1:
     mov BX, offset pacb
 
 d_draw:
-    CALL drawIcon
-    RET
+    call drawIcon
+    ret
 
 
-;------- docycle ---------------
-; >> posX, cycle
+;---------- docycle : déplacement + animation Pacman -----
 docycle:
-    cmp direction, 0   ; move right
-    jne moveL
+    cmp direction, 0
+    jne mv_left
     inc posX
-    jmp cycle1
-moveL:                 ; move left
+    jmp cy_anim
+
+mv_left:
     cmp direction, 1
-    jne moveU
+    jne mv_up
     dec posX
-    jmp cycle1
-moveU:
+    jmp cy_anim
+
+mv_up:
     cmp direction, 2
-    jne moveD
+    jne mv_down
     dec posY
-    jmp cycle1
-moveD:
+    jmp cy_anim
+
+mv_down:
     inc posY
-    
-cycle1:                ; change cycle 0-1
+
+cy_anim:
     cmp cycle, 0
-    jne cycle0
+    jne cy0
     mov cycle, 1
-    RET
-cycle0:
+    ret
+cy0:
     mov cycle, 0
-    RET
-     
-;------- interact ---------------
-; >> direction
+    ret
+
+
+;---------- deplacement du fantome ----------
+MoveGhost PROC
+    ; tester le pixel devant le fantome
+    cmp ghostDir, 0
+    je g_right
+    cmp ghostDir, 1
+    je g_left
+    cmp ghostDir, 2
+    je g_up
+    ; sinon bas
+g_down:
+    mov ax, ghostX
+    add ax, 7
+    mov pX, ax
+    mov ax, ghostY
+    add ax, 16
+    mov pY, ax
+    jmp g_test
+
+g_right:
+    mov ax, ghostX
+    add ax, 16
+    mov pX, ax
+    mov ax, ghostY
+    add ax, 7
+    mov pY, ax
+    jmp g_test
+
+g_left:
+    mov ax, ghostX
+    sub ax, 1
+    mov pX, ax
+    mov ax, ghostY
+    add ax, 7
+    mov pY, ax
+    jmp g_test
+
+g_up:
+    mov ax, ghostX
+    add ax, 7
+    mov pX, ax
+    mov ax, ghostY
+    sub ax, 1
+    mov pY, ax
+
+g_test:
+    call ReadPxl
+    cmp rdcol, 1          ; mur ?
+    je g_turn             ; si mur -> changer de direction
+
+    ; sinon avancer de 1 pixel
+    cmp ghostDir, 0
+    jne g_mv_left
+    inc ghostX
+    ret
+g_mv_left:
+    cmp ghostDir, 1
+    jne g_mv_up
+    dec ghostX
+    ret
+g_mv_up:
+    cmp ghostDir, 2
+    jne g_mv_down
+    dec ghostY
+    ret
+g_mv_down:
+    inc ghostY
+    ret
+
+g_turn:
+    ; changer de direction (cyclique 0..3)
+    mov al, ghostDir
+    inc al
+    and al, 3
+    mov ghostDir, al
+    ret
+MoveGhost ENDP
+
+
+;---------- interaction clavier -------------
 interact:
     call PeekKey
     cmp userinput, '*'
     jne  testR
     call VideoCMD
-    mov AH,4Ch          ; fin de prog DOS
-    mov AL,00h      
-    int 21h       
+    mov AX,4C00h
+    int 21h
 testR:
-    CMP userinput,'M'   ; M for right
-    JNE testL
-    MOV direction, 0
-    RET
+    cmp userinput,'M'
+    jne testL
+    mov direction, 0
+    ret
 testL:
-    CMP userinput,'K'   ; K for left
-    JNE testU
-    MOV direction, 1
-    RET
+    cmp userinput,'K'
+    jne testU
+    mov direction, 1
+    ret
 testU:
-    CMP userinput,'H'   ; H for up
-    JNE testD 
-    MOV direction, 2
-    RET
+    cmp userinput,'H'
+    jne testD
+    mov direction, 2
+    ret
 testD:
-    CMP userinput,'P'   ; P for down
-    JNE noHit
-    MOV direction, 3
-    RET
+    cmp userinput,'P'
+    jne noHit
+    mov direction, 3
 noHit:
-    RET
-     
-;------- isdead ---------------
-; posX, posX >>
-isdead:
-
-    ; --- coin haut-gauche ---
-    mov AX, posX
-    mov pX, AX
-    mov AX, posY
-    mov pY, AX
-    call ReadPxl
-    cmp rdcol, 1
-    je dead
-
-    ; --- coin haut-droit ---
-    mov AX, posX
-    add AX, 15
-    mov pX, AX
-    mov AX, posY
-    mov pY, AX
-    call ReadPxl
-    cmp rdcol, 1
-    je dead
-
-    ; --- coin bas-gauche ---
-    mov AX, posX
-    mov pX, AX
-    mov AX, posY
-    add AX, 15
-    mov pY, AX
-    call ReadPxl
-    cmp rdcol, 1
-    je dead
-
-    ; --- coin bas-droit ---
-    mov AX, posX
-    add AX, 15
-    mov pX, AX
-    mov AX, posY
-    add AX, 15
-    mov pY, AX
-    call ReadPxl
-    cmp rdcol, 1
-    je dead
-
     ret
 
-dead:
-    call VideoCMD
-    mov AH,4Ch
-    mov AL,00h
-    int 21h
 
+;---------- isdead : collision Pacman / murs -----
+; On regarde un point DEVANT Pacman, au milieu du côté.
+isdead:
+
+    cmp direction, 0          ; droite
+    je chk_right
+    cmp direction, 1          ; gauche
+    je chk_left
+    cmp direction, 2          ; haut
+    je chk_up
+    cmp direction, 3          ; bas
+    je chk_down
+    ret
+
+chk_right:
+    mov AX, posX
+    add AX, 16                ; juste devant à droite
+    mov pX, AX
+    mov AX, posY
+    add AX, 7                 ; milieu vertical
+    mov pY, AX
+    jmp do_check
+
+chk_left:
+    mov AX, posX
+    sub AX, 1                 ; juste devant à gauche
+    mov pX, AX
+    mov AX, posY
+    add AX, 7
+    mov pY, AX
+    jmp do_check
+
+chk_up:
+    mov AX, posX
+    add AX, 7                 ; milieu horizontal
+    mov pX, AX
+    mov AX, posY
+    sub AX, 1                 ; juste au-dessus
+    mov pY, AX
+    jmp do_check
+
+chk_down:
+    mov AX, posX
+    add AX, 7
+    mov pX, AX
+    mov AX, posY
+    add AX, 16                ; juste en dessous
+    mov pY, AX
+
+do_check:
+    call ReadPxl
+    cmp rdcol, 1              ; murs bleus
+    jne notDead
+
+dead:
+    call WaitKey
+    call VideoCMD
+    mov AX,4C00h
+    int 21h
 
 notDead:
     ret
 
-; ================= FIN DU CODE ===============
-code    ends                   ; Fin du segment de code
-end prog                         ; Fin du programme
+
+;---------- GhostHit : collision Pacman / fantome -----
+GhostHit PROC
+    ; |posX - ghostX| < 15  &&  |posY - ghostY| < 15 ?
+    mov ax, posX
+    sub ax, ghostX
+    jns gh_x_ok
+    neg ax
+gh_x_ok:
+    cmp ax, 15
+    jae gh_nohit
+
+    mov ax, posY
+    sub ax, ghostY
+    jns gh_y_ok
+    neg ax
+gh_y_ok:
+    cmp ax, 15
+    jae gh_nohit
+
+    ; collision
+    jmp dead
+
+gh_nohit:
+    ret
+GhostHit ENDP
+
+
+;---------- DrawGhost : dessine le fantome -----
+DrawGhost PROC
+    mov ax, ghostX
+    mov iX, ax
+    mov ax, ghostY
+    mov iY, ax
+    mov BX, OFFSET image
+    call drawIcon
+    ret
+DrawGhost ENDP
+
+
+;---------- DrawMaze : affiche le labyrinthe avec murs "fins" -----
+DrawMaze PROC
+    mov si, OFFSET maze
+    mov di, 0                 ; ligne 0..MAZE_H-1
+
+row_loop:
+    mov bx, 0                 ; colonne 0..MAZE_W-1
+
+col_loop:
+    mov al, [si]
+    inc si
+
+    cmp al, 'X'
+    jne not_wall
+
+    ; X pixel base = MAZE_X0 + colonne * TILE_W
+    mov ax, bx
+    mov cx, TILE_W
+    mul cx
+    add ax, MAZE_X0
+    mov Rx, ax
+
+    ; Y pixel base = MAZE_Y0 + ligne * TILE_H
+    mov ax, di
+    mov cx, TILE_H
+    mul cx
+    add ax, MAZE_Y0
+    mov Ry, ax
+
+    ; on décale le mur vers l'intérieur de la case
+    add Rx, WALL_MARG
+    add Ry, WALL_MARG
+
+    mov Rw, WALL_W
+    mov Rh, WALL_H
+    mov col, 1               ; bleu
+    call fillRect
+
+not_wall:
+    inc bx
+    cmp bx, MAZE_W
+    jl  col_loop
+
+    inc di
+    cmp di, MAZE_H
+    jl  row_loop
+
+    ret
+DrawMaze ENDP
+
+
+;---------- DrawPellets : dessine toutes les pastilles -----
+DrawPellets PROC
+    mov si, OFFSET maze
+    mov di, 0                 ; ligne
+
+pel_row:
+    mov bx, 0                 ; colonne
+
+pel_col:
+    mov al, [si]
+    inc si
+
+    cmp al, '.'
+    jne pel_next
+
+    ; calcule la position pixel de la pastille
+    ; base case
+    mov ax, bx
+    mov cx, TILE_W
+    mul cx
+    add ax, MAZE_X0
+    add ax, PELLET_OFFX
+    mov Rx, ax
+
+    mov ax, di
+    mov cx, TILE_H
+    mul cx
+    add ax, MAZE_Y0
+    add ax, PELLET_OFFY
+    mov Ry, ax
+
+    mov Rw, PELLET_W
+    mov Rh, PELLET_H
+    mov col, PELLET_COL
+    call fillRect
+
+pel_next:
+    inc bx
+    cmp bx, MAZE_W
+    jl  pel_col
+
+    inc di
+    cmp di, MAZE_H
+    jl  pel_row
+
+    ret
+DrawPellets ENDP
+
+
+;---------- EatPellet : Pacman mange la pastille sous lui -----
+EatPellet PROC
+    ; calcul de la case sous le centre de Pacman
+    ; centreX = posX + 7
+    mov ax, posX
+    add ax, 7
+    sub ax, MAZE_X0
+    cmp ax, 0
+    jb ep_exit
+    cmp ax, MAZE_W*TILE_W      ; 19*15 = 285
+    jae ep_exit
+
+    mov bl, TILE_W
+    div bl                     ; AX / BL -> AL = col
+    mov cl, al                 ; CL = col
+
+    mov ax, posY
+    add ax, 7
+    sub ax, MAZE_Y0
+    cmp ax, 0
+    jb ep_exit
+    cmp ax, MAZE_H*TILE_H      ; 16*15 = 240
+    jae ep_exit
+
+    mov bl, TILE_H
+    div bl                     ; AL = row
+    mov ch, al                 ; CH = row
+
+    ; index = row*MAZE_W + col
+    mov ax, 0
+    mov al, ch                 ; row
+    mov bl, MAZE_W
+    mul bl                     ; AX = row*MAZE_W
+    mov bx, ax
+    mov al, cl                 ; col
+    cbw
+    add bx, ax                 ; BX = index
+
+    mov si, OFFSET maze
+    add si, bx
+
+    cmp BYTE PTR [si], '.'
+    jne ep_exit                ; pas de pastille
+
+    ; effacer la pastille dans le tableau
+    mov BYTE PTR [si], ' '
+
+    ; effacer la pastille à l'écran (petit carré noir)
+    ; re-calcule la position pixel (on a col=CL, row=CH)
+    mov ax, 0
+    mov al, cl                 ; col
+    mov bl, TILE_W
+    mul bl
+    add ax, MAZE_X0
+    add ax, PELLET_OFFX
+    mov Rx, ax
+
+    mov ax, 0
+    mov al, ch                 ; row
+    mov bl, TILE_H
+    mul bl
+    add ax, MAZE_Y0
+    add ax, PELLET_OFFY
+    mov Ry, ax
+
+    mov Rw, PELLET_W
+    mov Rh, PELLET_H
+    mov col, 0                 ; noir
+    call fillRect
+
+ep_exit:
+    ret
+EatPellet ENDP
+
+
+code ends
+end prog
