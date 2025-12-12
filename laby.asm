@@ -44,7 +44,6 @@ maze    DB 'XXXXXXXXXXXXXXXXXXX'
         DB 'X.X.............X.X'
         DB 'X.XXX.XXX.XXX.XXX.X'
         DB 'X.................X'
-        DB 'X.................X'
         DB 'XXXXXXXXXXXXXXXXXXX'
 
 donnees ends
@@ -111,17 +110,17 @@ col_loop:
 
     mov Rw, TILE_W        ; largeur du mur
     mov Rh, TILE_H        ; hauteur du mur
-    mov col, 1            ; couleur (bleu par exemple)
+    mov col, 1            ; couleur (bleu)
     call fillRect
 
 not_wall:
     inc bx
     cmp bx, MAZE_W
-    jl  col_loop          ; encore des colonnes ?
+    jl  col_loop
 
     inc di
     cmp di, MAZE_H
-    jl  row_loop          ; encore des lignes ?
+    jl  row_loop
 
     ret
 DrawMaze ENDP
