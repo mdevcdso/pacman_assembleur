@@ -4,8 +4,6 @@
 ;****************************************
 include LIBGFX.INC
 
-EXTRN  image:WORD        ; sprite du fantome (défini dans ghost.asm)
-
 pile    segment stack
     dw 128 dup(?)
 pile    ends
