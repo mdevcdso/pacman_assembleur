@@ -2,7 +2,7 @@
 ;   Pac Man game rmaster deluxe edition
 ; =======================================
 ;****************************************
-include LIBGFX.INC
+include LIBGFX.INC      ; bibliothèque graphique 
 
 pile    segment stack
     dw 128 dup(?)
@@ -13,17 +13,17 @@ donnees segment public
 ; =================================================
 ;             SPRITES PACMAN 15x15
 ; =================================================
-pacr  DW   15, 225
+pacr  DW   15, 225      ; pacman bouche ouverte DROITE
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,44,0,0,0,0,0,0,0,0,44
     DB 44,44,44,44,44,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44,0,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44
     DB 44,44,0,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-man  DW   15, 225
+man  DW   15, 225       ; pacman bouche fermée toute direction
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,44,44,44,44,0,0,0,0,0,44,44,44,44,44,44,44,44,44,44,44,0,0,0,0,44,44,44,44,44,44,44,44,44,44,44,0,0,0,44,44,44
     DB 44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,44,44,44,44,44,44,44,44,44,44,44,44,44,0,0,0,44,44,44,44,44,44
     DB 44,44,44,44,44,0,0,0,0,44,44,44,44,44,44,44,44,44,44,44,0,0,0,0,0,44,44,44,44,44,44,44,44,44,0,0,0,0,0,0,0,0,44,44,44,44,44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-pacl DW 15,225
+pacl DW 15,225          ; pacman bouche ouverte GAUCHE
     DB  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB  0,0,0,44,44,44,44,44,0,0,0,0,0,0,0
     DB  0,0,0,44,44,44,44,44,44,44,0,0,0,0,0
@@ -40,7 +40,7 @@ pacl DW 15,225
     DB  0,0,0,44,44,44,44,44,0,0,0,0,0,0,0
     DB  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-pact DW 15,225
+pact DW 15,225      ; pacman bouche ouverte vers le haut
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -57,7 +57,7 @@ pact DW 15,225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-pacb DW 15,225
+pacb DW 15,225          ; pacman bouche ouverte vers le bas
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -74,7 +74,7 @@ pacb DW 15,225
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-ghost  DW   15, 225
+ghost  DW   15, 225     ; fantome
     DB 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     DB 0,0,0,40,40,40,40,40,40,40,40,0,0,0,0
     DB 0,0,40,40,40,40,40,40,40,40,40,40,0,0,0
@@ -101,12 +101,12 @@ MAZE_W   EQU 19
 MAZE_H   EQU 16
 TILE_W   EQU 15
 TILE_H   EQU 15
-MAZE_X0  EQU 40
-MAZE_Y0  EQU 20
+MAZE_X0  EQU 40             ; offset X du labyrinthe dans l'écran
+MAZE_Y0  EQU 20             ; offset Y du labyrinthe dans l'écran
 
 WALL_MARG EQU 2                         ; marge vide autour du mur dans la case
-WALL_W    EQU TILE_W-2*WALL_MARG        ; 11
-WALL_H    EQU TILE_H-2*WALL_MARG        ; 11
+WALL_W    EQU TILE_W-2*WALL_MARG        ; largeur réelle du bloc - 11
+WALL_H    EQU TILE_H-2*WALL_MARG        ; hauteur réelle du bloc - 11
 
 ; pastilles (petits carrés 3x3 au centre des cases '.')
 PELLET_W   EQU 3
@@ -115,7 +115,7 @@ PELLET_COL EQU 15
 PELLET_OFFX EQU (TILE_W-PELLET_W)/2     ; 6
 PELLET_OFFY EQU (TILE_H-PELLET_H)/2     ; 6
 
-; X = mur, . = passage avec pastille
+; labyrinthe : X = mur, . = passage avec pastille
 maze    DB 'XXXXXXXXXXXXXXXXXXX'
         DB 'X.................X'
         DB 'X.XXX.XXX.X.XXX.X.X'
@@ -150,23 +150,23 @@ end4   DB "... press any Key to leave$"
 ; =================================================
 ;                 VARIABLES
 ; =================================================
-cycle      DB  0         ; 0 ou 1 pour la bouche
+cycle      DB  0         ; 0 ou 1 pour l'animation de bouche (fermée ou ouverte)
 direction  DB  0         ; 0=droite,1=gauche,2=haut,3=bas
 
 ; position initiale de Pacman dans un couloir
+; calcul : MAZE_X0 + col*15, MAZE_Y0 + row*15
 posX  DW  55             ; 40 + 1*15
 posY  DW  215            ; 20 + 13*15
 
-; fantome (une seule instance pour l'instant)
+; fantome (position initiale + direction)
 ghostX DW  175           ; 40 + 9*15
 ghostY DW  125           ; 20 + 7*15
 ghostDir DB 0            ; 0= droite,1=gauche,2=haut,3=bas
 
+; score affiché en haut de l'écran
 scoreColor EQU 15          ; blanc
 score       DW 0
 scoreText DB "SCORE: "
-
-
 
 donnees ends
 
@@ -179,13 +179,14 @@ assume cs:code, ds:donnees, ss:pile
 ; =================================================
 prog:
     mov ax, donnees
-    mov ds, ax
+    mov ds, ax      ; initialisation du segment de données
 
     ; écran d'aide
     call Help
 
-    ; mode 640x480
+    ; mode 640x480 256 couleurs (LIBGFX)
     call VideoVGA
+    ; dessine un cadre jaune autour de l'écran
     mov Rx, 0
     mov Ry, 0
     mov Rh, 479
@@ -195,9 +196,9 @@ prog:
 
     call ClearScreen      ; fond noir
 
-    mov tempo, 20
+    mov tempo, 20       ; vitesse du jeu
 
-    ; dessiner le labyrinthe et les pastilles une seule fois
+    ; labyrinthe et les pastilles
     call DrawMaze
     call DrawPellets
 
@@ -210,13 +211,13 @@ game_loop:
     call isdead           ; collision avec mur
     call GhostHit         ; collision avec fantome ?
 
-    ; dessin des sprites (labyrinthe/pastilles déjà dessinés)
+    ; dessin des sprites aux positions de départ
     call DrawGhost
     call dessine
 
     call sleep
-    call interact
-    jmp game_loop
+    call interact       ; lire les touches et ajuster la direction ou quitter
+    jmp game_loop       ; boucle infinie jusqu'à l'arrêt du jeu
 
 
 ; =================================================
@@ -241,7 +242,7 @@ Help:
     call CharLine
     mov DX, offset nfo6
     call CharLine
-    call WaitKey
+    call WaitKey        ; permet d'attendre une touche
     ret
 
 ;---------- dessine Pacman -------------
@@ -264,7 +265,7 @@ dessine:
 d_right:
     cmp cycle, 0
     jne dr1
-    mov BX, offset man
+    mov BX, offset man      ; bouche fermée
     jmp d_draw
 dr1:
     mov BX, offset pacr
@@ -285,7 +286,7 @@ d_up:
     mov BX, offset man
     jmp d_draw
 du1:
-    mov BX, offset pact
+    mov BX, offset pact     ; bouche ouverte haut
     jmp d_draw
 
 d_down:
@@ -301,27 +302,27 @@ d_draw:
     ret
 
 
-;---------- docycle : déplacement + animation Pacman -----
+;---------- déplacement du Pacman -----
 docycle:
     cmp direction, 0
     jne mv_left
-    inc posX
+    inc posX        ; droite
     jmp cy_anim
 
 mv_left:
     cmp direction, 1
     jne mv_up
-    dec posX
+    dec posX        ; gauche
     jmp cy_anim
 
 mv_up:
     cmp direction, 2
     jne mv_down
-    dec posY
+    dec posY        ; haut
     jmp cy_anim
 
 mv_down:
-    inc posY
+    inc posY        ; bas
 
 cy_anim:
     cmp cycle, 0
@@ -334,6 +335,8 @@ cy0:
 
 
 ;---------- deplacement du fantome ----------
+; le fantôme avance dans ghostDir tant qu'il n'y a pas de mur (couleur 1).
+; s'il touche un mur, il tourne en changeant ghostDir cycliquement (0..3).
 MoveGhost PROC
     ; tester le pixel devant le fantome
     cmp ghostDir, 0
@@ -345,25 +348,25 @@ MoveGhost PROC
     ; sinon bas
 g_down:
     mov ax, ghostX
-    add ax, 7
+    add ax, 7       ; milieu horizontal du fantôme
     mov pX, ax
     mov ax, ghostY
-    add ax, 16
+    add ax, 16      ; un pixel sous le sprite
     mov pY, ax
     jmp g_test
 
 g_right:
     mov ax, ghostX
-    add ax, 16
+    add ax, 16      ; un pixel à droite du sprite
     mov pX, ax
     mov ax, ghostY
-    add ax, 7
+    add ax, 7       ; milieu vertical
     mov pY, ax
     jmp g_test
 
 g_left:
     mov ax, ghostX
-    sub ax, 1
+    sub ax, 1       ; un pixel à gauche
     mov pX, ax
     mov ax, ghostY
     add ax, 7
@@ -372,47 +375,50 @@ g_left:
 
 g_up:
     mov ax, ghostX
-    add ax, 7
+    add ax, 7       ; milieu horizontal
     mov pX, ax
     mov ax, ghostY
-    sub ax, 1
+    sub ax, 1       ; un pixel au-dessus
     mov pY, ax
 
 g_test:
     call ReadPxl
-    cmp rdcol, 1          ; mur ?
+    cmp rdcol, 1          ; couleur 1 = mur bleu
     je g_turn             ; si mur -> changer de direction
 
     ; sinon avancer de 1 pixel
     cmp ghostDir, 0
     jne g_mv_left
-    inc ghostX
+    inc ghostX      ; droite
     ret
 g_mv_left:
     cmp ghostDir, 1
     jne g_mv_up
-    dec ghostX
+    dec ghostX      ; gauche
     ret
 g_mv_up:
     cmp ghostDir, 2
     jne g_mv_down
-    dec ghostY
+    dec ghostY      ; haut
     ret
 g_mv_down:
-    inc ghostY
+    inc ghostY      ; bas
     ret
 
 g_turn:
     ; changer de direction (cyclique 0..3)
     mov al, ghostDir
     inc al
-    and al, 3
+    and al, 3       ; garde uniquement 2 bits (0..3)
     mov ghostDir, al
     ret
 MoveGhost ENDP
 
 
 ;---------- interaction clavier -------------
+; Lit une touche via PeekKey.
+; Flèches DOS : H/P/K/M -> modifient direction.
+; '*' -> quitte immédiatement le programme.
 interact:
     call PeekKey
     cmp userinput, '*'
@@ -445,6 +451,7 @@ noHit:
 
 ;---------- isdead : collision Pacman / murs -----
 ; On regarde un point DEVANT Pacman, au milieu du côté.
+; Si la couleur à ce point est 1 -> fin du jeu.
 isdead:
 
     cmp direction, 0          ; droite
@@ -549,7 +556,7 @@ EndMsg:
     call CharLine
     mov DX, offset end1
     call CharLine
-    mov DX, offset end4
+    mov DX, offset end4     ; "press any Key to leave"
     call CharLine
     call WaitKey
     ret
@@ -700,19 +707,19 @@ pel_col:
     mov cx, TILE_W
     mul cx
     add ax, MAZE_X0
-    add ax, PELLET_OFFX
+    add ax, PELLET_OFFX ; centrage horizontal
     mov Rx, ax
 
     mov ax, di
     mov cx, TILE_H
     mul cx
     add ax, MAZE_Y0
-    add ax, PELLET_OFFY
+    add ax, PELLET_OFFY     ; centrage vertical
     mov Ry, ax
 
     mov Rw, PELLET_W
     mov Rh, PELLET_H
-    mov col, PELLET_COL
+    mov col, PELLET_COL     ; couleur de la pastille
     call fillRect
 
 pel_next:
@@ -798,7 +805,7 @@ EatPellet PROC
     mov col, 0                 ; noir
     call fillRect
 
-    add score, 10; Augmente les points
+    add score, 10       ; Augmente les points de 10
 
 
 ep_exit:
